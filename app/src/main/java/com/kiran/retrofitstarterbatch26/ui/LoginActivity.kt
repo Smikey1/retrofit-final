@@ -3,8 +3,6 @@ package com.kiran.retrofitstarterbatch26.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -34,7 +32,6 @@ class LoginActivity : AppCompatActivity() {
         etUsername = findViewById(R.id.etUsername)
         etPassword = findViewById(R.id.etPassword)
         tvRegister = findViewById(R.id.tvRegister)
-        linearLayout = findViewById(R.id.linearLayout)
         btnLogin = findViewById(R.id.btnLogin)
 
         tvRegister.setOnClickListener {
@@ -50,41 +47,32 @@ class LoginActivity : AppCompatActivity() {
         val username = etUsername.text.toString()
         val password = etPassword.text.toString()
 
+        val user = User(username = username, password = password)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val repository = UserRepository()
-                val response = repository.login(username,password)
-                if (response.success== true) {
+                val response = repository.login(user)
+                if (response.success == true) {
                     startActivity(
                         Intent(
-                            this@LoginActivity,
-                            DashboardActivity::class.java
+                            this@LoginActivity, FetchStudentActivity::class.java
                         )
                     )
                     finish()
+
                 } else {
                     withContext(Dispatchers.Main) {
                         val snack =
-                            Snackbar.make(
-                                linearLayout,
-                                "Invalid credentials",
-                                Snackbar.LENGTH_LONG
-                            )
-                        snack.setAction("OK", View.OnClickListener {
-                            snack.dismiss()
-                        })
-                        snack.show()
+                            Snackbar.make(linearLayout, "Invalid credential", Snackbar.LENGTH_LONG)
                     }
                 }
-            } catch (ex: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.d("Error", ex.toString())
 
-                    Toast.makeText(
-                        this@LoginActivity,
-                        ex.toString(),
-                        Toast.LENGTH_SHORT
-                    ).show()
+            }catch (ex: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LoginActivity, "Successfully Logged In", Toast.LENGTH_SHORT)
+                        .show()
+                    startActivity(Intent(this@LoginActivity,FetchStudentActivity::class.java))
+                    finish()
                 }
             }
         }
